@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,15 +13,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Peter Aldous <aldous@cs.byu.edu>
- *
- *         There is no need to change this file.
- *
+ * <p>
+ * There is no need to change this file.
  */
 
 public class TypeChecker {
@@ -31,7 +31,7 @@ public class TypeChecker {
      *
      * @param paths An array of file or directory names to be expanded.
      * @return A sequence of paths to Java files, either from paths or contained in
-     *         a directory specified by paths.
+     * a directory specified by paths.
      */
     private static ArrayList<String> expand(final String[] paths) {
         ArrayList<String> result = new ArrayList<>(Math.max(10, paths.length));
@@ -114,16 +114,61 @@ public class TypeChecker {
     public static Set<String> getAllCaps(ASTNode node) {
         final NoAllCapsVisitor v = new NoAllCapsVisitor();
         node.accept(v);
+        System.out.println("NODE: " + node.toString());
         return v.getAllCaps();
     }
+
+    public static Set<String> getElseIfStatementViolations(ASTNode node) {
+        logger.debug("getIfCalled");
+        final IfStatementVisitor v = new IfStatementVisitor();
+        node.accept(v);
+        return v.getAllViolations();
+    }
+
+    public Object[] getChildren(ASTNode node) {
+        List list = node.structuralPropertiesForType();
+        for (StructuralPropertyDescriptor property : (List<StructuralPropertyDescriptor>) list) {
+            Object child = node.getStructuralProperty(property);
+            if (child instanceof List) {
+                return ((List) child).toArray();
+            } else if (child instanceof ASTNode) {
+                return new Object[]{child};
+            }
+            return new Object[0];
+
+        }
+        return new Object[]{};
+    }
+
+ /*   public Object[] getChildren(ASTNode node) {
+        List list = node.structuralPropertiesForType();
+        for (int i = 0; i < list.size(); i++) {
+            StructuralPropertyDescriptor curr = (StructuralPropertyDescriptor) list.get(i);
+            Object child = node.getStructuralProperty(curr);
+            if (child instanceof List) {
+                return ((List) child).toArray();
+            } else if (child instanceof ASTNode) {
+                return new Object[]{child};
+            }
+            return new Object[0];
+        }
+    }*/
 
     public static void main(String[] args) {
         logger.info("I hate my life");
         ASTNode node = parseAll(expand(args));
 
-        Set<String> ac = getAllCaps(node);
+       /* Set<String> ac = getAllCaps(node);
         for (String c : ac) {
             logger.error("Found a name that is all caps: {}", c);
+        }*/
+
+       //TODO I AM HERE
+        Set<String> violations = getElseIfStatementViolations(node);
+        for (String v : violations) {
+            logger.error("Else if clause missing closing else clause:\n {}", v);
         }
+
+
     }
 }

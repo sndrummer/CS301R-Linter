@@ -30,7 +30,7 @@ public class NoAllCapsVisitorTests {
     public void propertyDoesNotHoldTest() {
         Set<String> ac = TypeChecker.getAllCaps(TypeChecker.parse(hasAllCaps));
         assertFalse(ac.isEmpty());
-        assertEquals(ac.size(), 1);
+        assertEquals(2, ac.size());
         assertTrue(ac.contains("STUFF"));
     }
 
