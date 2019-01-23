@@ -1,21 +1,17 @@
 package edu.byu.yc;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
  * @author Samuel Nuttall
+ *
  * Assures that an if statement that is the immediate child of an else
  * statement must contain an else clause of its own.
  */
@@ -50,7 +46,7 @@ public class IfStatementVisitor extends ASTVisitor {
 
 
     /**
-     * @return Statements that violate the else if with no else clause
+     * @return Statements that violate linting rule
      */
     public Set<String> getAllViolations() {
         return violations;

@@ -1,7 +1,16 @@
 
 
 //TODO
-1. Create 2 files that fit the description of crap you need to figure out, use switch statement and maybe else
-2. Implement a Visitor for the first one, that checks and sees if there are too many switch statements
-    * To do this just look at the VisitorNode implementation, basically use
-        visit(ifStatement node){}
+
+Files to include:
+IMPORTANT
+--resources/logback.xml
+
+1. test-files directory
+2. SwitchStatementVisitor.java
+3. IfStatementVisitor.java
+4. ASTUtilities.java
+
+TESTS
+1. IfStatementVisitorTests
+2. SwitchStatementVisitorTests

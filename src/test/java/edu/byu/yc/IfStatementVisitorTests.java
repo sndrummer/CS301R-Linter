@@ -23,17 +23,33 @@ public class IfStatementVisitorTests {
     private final String closingElse = TypeChecker.readFile(closingElseFile.getPath());
     private final String noIfElse = TypeChecker.readFile(NoIfElseFile.getPath());
 
+
+    /**
+     * Tests that no violations are added when there is no else statements
+     */
+    @Test
+    public void ignoreIfStatementsWithNoElse() {
+        assertTrue(TypeChecker.getElseIfStatementViolations(TypeChecker.parse(noIfElse)).isEmpty());
+    }
+
+    /**
+     * Tests that no violations are added when there is there is a closing else statement i.e. the
+     * code complies to the linting rule
+     */
     @Test
     public void propertyHoldsTest() {
-        assertTrue(TypeChecker.getElseIfStatementViolations(TypeChecker.parse(noIfElse)).isEmpty());
         assertTrue(TypeChecker.getElseIfStatementViolations(TypeChecker.parse(closingElse)).isEmpty());
     }
 
+    /**
+     * Tests when there is a missing else clause after an else if
+     * Should report 2 errors since the test file includes 2 else if clauses with no closing else
+     * clause
+     */
     @Test
     public void propertyDoesNotHoldTest() {
         Set<String> v = TypeChecker.getElseIfStatementViolations(TypeChecker.parse(noClosingElse));
         assertFalse(v.isEmpty());
-        assertEquals(1, v.size());
-        //assertTrue(v.contains("STUFF"));
+        assertEquals(2, v.size());
     }
 }

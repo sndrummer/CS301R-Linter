@@ -10,4 +10,14 @@ public class IfStatements {
         }
         return false;
     }
+
+    public void hello() {
+        int x = 1;
+        if (true) {
+            x = 2;
+        } else if (true) {
+            x = 4;
+        }
+        x = 5;
+    }
 }

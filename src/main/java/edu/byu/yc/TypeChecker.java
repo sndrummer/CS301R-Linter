@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +12,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ public class TypeChecker {
             final File f = new File(path);
             if (f.isDirectory()) {
                 final File[] children = f.listFiles();
+
                 String[] childPaths = new String[children.length];
                 for (int i = 0; i < children.length; ++i) {
                     childPaths[i] = children[i].getPath();
@@ -114,61 +113,42 @@ public class TypeChecker {
     public static Set<String> getAllCaps(ASTNode node) {
         final NoAllCapsVisitor v = new NoAllCapsVisitor();
         node.accept(v);
-        System.out.println("NODE: " + node.toString());
         return v.getAllCaps();
     }
 
     public static Set<String> getElseIfStatementViolations(ASTNode node) {
-        logger.debug("getIfCalled");
+        logger.debug("getElseIfStatementViolations ()");
         final IfStatementVisitor v = new IfStatementVisitor();
         node.accept(v);
         return v.getAllViolations();
     }
 
-    public Object[] getChildren(ASTNode node) {
-        List list = node.structuralPropertiesForType();
-        for (StructuralPropertyDescriptor property : (List<StructuralPropertyDescriptor>) list) {
-            Object child = node.getStructuralProperty(property);
-            if (child instanceof List) {
-                return ((List) child).toArray();
-            } else if (child instanceof ASTNode) {
-                return new Object[]{child};
-            }
-            return new Object[0];
-
-        }
-        return new Object[]{};
+    public static Set<String> getSwitchStatementViolations(ASTNode node) {
+        logger.debug("getSwitchStatementViolations() Called");
+        final SwitchStatementVisitor v = new SwitchStatementVisitor();
+        node.accept(v);
+        return v.getViolations();
     }
 
- /*   public Object[] getChildren(ASTNode node) {
-        List list = node.structuralPropertiesForType();
-        for (int i = 0; i < list.size(); i++) {
-            StructuralPropertyDescriptor curr = (StructuralPropertyDescriptor) list.get(i);
-            Object child = node.getStructuralProperty(curr);
-            if (child instanceof List) {
-                return ((List) child).toArray();
-            } else if (child instanceof ASTNode) {
-                return new Object[]{child};
-            }
-            return new Object[0];
-        }
-    }*/
 
     public static void main(String[] args) {
-        logger.info("I hate my life");
         ASTNode node = parseAll(expand(args));
 
-       /* Set<String> ac = getAllCaps(node);
+        Set<String> ac = getAllCaps(node);
         for (String c : ac) {
             logger.error("Found a name that is all caps: {}", c);
-        }*/
+        }
 
-       //TODO I AM HERE
         Set<String> violations = getElseIfStatementViolations(node);
         for (String v : violations) {
             logger.error("Else if clause missing closing else clause:\n {}", v);
         }
 
+        Set<String> switchViolations = getSwitchStatementViolations(node);
+        for (String violation : switchViolations) {
+            logger.error("The following Switch Statement has too many switch statement cases, " +
+                    "should have no more than 6 (excluding default). \n{}", violation);
+        }
 
     }
 }
